@@ -1,13 +1,63 @@
-- 👋 Hi, I’m @Stryker8011
-- 👀 I’m interested in ...
-- 🌱 I’m currently learning ...
-- 💞️ I’m looking to collaborate on ...
-- 📫 How to reach me ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
+mkdir voidscream_chat
+cd voidscream_chat
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate  # Windows
+pip install flask flask-socketio
 
-<!---
-Stryker8011/Stryker8011 is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
-You can click the Preview link to take a look at your changes.
---->
 
+from flask import Flask, render_template, request, session
+from flask_socketio import SocketIO, join_room, emit
+import random
+from datetime import datetime
+
+app = Flask(__name__)
+app.config["SECRET_KEY"] = "voidscream_1337"  # Keep it secret, keep it safe
+socketio = SocketIO(app)
+
+# Mock database for connected users and messages
+users = {}  # {sid: nickname}
+messages = []  # List of {nickname, message, timestamp}
+
+# Glitchy color palette for user messages
+VOID_COLORS = ['#ff00ff', '#00ff00', '#ff0000', '#00ffff', '#ffff00']
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@socketio.on('connect')
+def handle_connect():
+    # Assign a random anon ID if none exists
+    if 'nickname' not in session:
+        session['nickname'] = f"Anon_{random.randint(1000, 9999)}"
+    users[request.sid] = session['nickname']
+    emit('welcome', {'message': f"{session['nickname']} joined the void!", 'color': random.choice(VOID_COLORS)}, broadcast=True)
+    # TODO: Send chat history to new user (last 50 messages)
+
+@socketio.on('message')
+def handle_message(data):
+    message = data['message']
+    if len(message) > 280:  # Void’s got limits
+        return
+    timestamp = datetime.now().strftime('%H:%M:%S')
+    msg_data = {
+        'nickname': users[request.sid],
+        'message': message,
+        'timestamp': timestamp,
+        'color': random.choice(VOID_COLORS)
+    }
+    messages.append(msg_data)
+    emit('new_message', msg_data, broadcast=True)
+    # TODO: Add message filtering (e.g., block spam or slurs)
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    nickname = users.get(request.sid, 'Anon')
+    del users[request.sid]
+    emit('leave', {'message': f"{nickname} fled the void!", 'color': '#ff0000'}, broadcast=True)
+    # TODO: Log disconnects to a file for void analytics
+
+if __name__ == "__main__":
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
+    # TODO: Add CLI args for custom host/port (e.g., python main.py --host 127.0.0.1 --port 8080)
