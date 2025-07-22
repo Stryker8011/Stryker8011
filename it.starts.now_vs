@@ -1,0 +1,19 @@
+from flask_socketio import SocketIO
+
+socketio = SocketIO(app)
+
+@socketio.on('start_scan')
+def handle_scan(data):
+    query = data.get('query', '##Voidscream')
+    posts = client.search_recent_tweets(query=query, max_results=10)
+    for post in posts.data:
+        analysis = analyze_text(post.text)
+        if analysis['is_lone_wolf']:
+            socketio.emit('new_lone_wolf', {
+                'username': post.author_id,
+                'text': post.text,
+                'keywords': analysis['keywords'],
+                'sentiment': analysis['sentiment']
+            })
+            socketio.sleep(1)  # Simulate streaming
+    # TODO: Add background thread for continuous scanning
