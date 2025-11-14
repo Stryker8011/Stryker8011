@@ -1,0 +1,67 @@
+from datetime import datetime
+import random
+
+class EmpireBriefing:
+    def __init__(self):
+        self.contacts = {
+            "primary_owner": "Pete",  # Kept separate from common code
+            "grant_administrator": "City Grant Administrator",
+            "investor_relations": "Kayla", 
+            "system_tracker": "Google Sheets Tracker"
+        }
+        
+        self.roles = [
+            "Primary Contractor",
+            "Project Manager", 
+            "Authorized Signatory",
+            "Technical Lead",
+            "Financial Payee"
+        ]
+    
+    def get_daily_briefing(self):
+        """Generate today's empire briefing"""
+        
+        today_focus = random.choice([
+            "Solidify your central position in all active deals",
+            "Ensure your name appears on all critical documentation",
+            "Maintain control points in every transaction",
+            "Strengthen your indispensable role across projects"
+        ])
+        
+        return f"""
+📊 **DAILY EMPIRE UPDATE** {datetime.now().strftime('%Y-%m-%d')}
+
+✅ **Active Applications:**
+   - MWBE Certification: You as principal
+   - Energy Retrofit Program: Your company executing
+   - Development Funding: Your signature authority required
+   - 3 additional opportunities in pipeline
+
+📝 **Your Central Positions:**
+   {chr(10).join(f'   - {role}' for role in random.sample(self.roles, 3))}
+   - Lead point of contact for all parties
+   - Final approval on all project decisions
+
+🎯 **Today's Imperial Actions:**
+   - Review and assert control over pending documentation
+   - Confirm your role in upcoming decision meetings  
+   - Document your contributions for position reinforcement
+   - Identify and address any potential bypass attempts
+
+🤝 **Strategic Relationships:** (Pete securely in fold)
+   - Property Owner: {self.contacts['primary_owner']}
+   - Funding Source: {self.contacts['grant_administrator']}
+   - Growth Capital: {self.contacts['investor_relations']}
+   - Systems: {self.contacts['system_tracker']} (automated)
+
+💡 **Empire Focus:** {today_focus}
+"""
+
+def your_daily_briefing():
+    """Main function you'll call daily"""
+    briefing = EmpireBriefing()
+    return briefing.get_daily_briefing()
+
+# Example usage
+if __name__ == "__main__":
+    print(your_daily_briefing())
